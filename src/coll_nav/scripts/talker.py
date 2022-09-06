@@ -151,14 +151,12 @@ def node():
     sub = rospy.Subscriber('/range/fl', Range, range_l_callback)
     sub = rospy.Subscriber('/range/fr', Range, range_r_callback)
 
-
-
     # rospy.set_param("~ego", False)
-    # rospy.set_param("~namespace", "rosbot1")
 
-    ego = rospy.get_param("~ego")
     namespace = rospy.get_param("~namespace")
-    threshold = rospy.get_param("~threshold")
+    threshold = rospy.get_param("~threshold", 0.2)
+    x_goal = rospy.get_param("~x_goal", 2)
+    y_goal = rospy.get_param("~y_goal", 0)
 
     # rospy.loginfo(ego)
     rate = rospy.Rate(5)  # 10hz
@@ -170,22 +168,24 @@ def node():
 
     while not rospy.is_shutdown():
         # key = getKey()
-        if (range_right < 0.5) & (range_left < 0.5) & (namespace == 'rosbot1'):
+        if (range_right < threshold) & (range_left < threshold):
             r = requests.post(url_msgs + '/' + namespace, json=my_vehicle)
             stop_requested = True
+            rospy.loginfo(namespace + 'obstacle detected')
         start_wp = find_closest_wp(pose.position.x, pose.position.y)
 
         affected_by_msgs = get_msg(namespace, my_vehicle)
 
         if affected_by_msgs:
-            rospy.loginfo('received warning msg, replanning')
+            rospy.loginfo(namespace + 'received warning msg, replanning')
             if graph.has_edge((1, 0), (2, 0)):
                 graph.remove_edge((1, 0), (2, 0))
-        path = nx.astar_path(graph, start_wp, (2, 0))
+        path = nx.astar_path(graph, start_wp, (x_goal, y_goal))
         # rospy.loginfo((namespace, pose.position.x, pose.position.y))
         msg = Twist()
 
-        if ((start_wp == (2, 0)) & ((pose.position.x-2) < .5)) | stop_requested:
+        if ((start_wp == (x_goal, 0)) & ((pose.position.x-x_goal) < .5)) | stop_requested:
+            rospy.loginfo(namespace + ' stop requested')
             msg.linear.x = 0.0
             msg.angular.z = 0.0
         else:
