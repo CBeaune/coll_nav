@@ -1,5 +1,5 @@
 <launch>
-    <arg name="namespace" default="rosbot2"/>
+    <arg name="namespace" default="rosbot"/>
 
     <group ns="$(arg namespace)">
     <arg name="serial_port" default="/dev/ttyS1"/>
