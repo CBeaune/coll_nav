@@ -1,0 +1,23 @@
+<launch>
+
+    <node pkg="coll_nav" name="talker1" type="talker.py" ns="rosbot1" output="screen" >
+        <param name="ego" type="bool" value="False" />
+        <param name="namespace" type="string" value="rosbot1" />
+        <param name="threshold" type="double" value="0.10" />
+        <remap from="/cmd_vel" to="cmd_vel"/>
+        <remap from="/odom" to="odom"/>
+        <remap from="/range/fr" to="range/fr"/>
+        <remap from="/range/fl" to="range/fl"/>
+    </node>
+
+    <node pkg="coll_nav" name="talker2" type="talker.py" ns="rosbot2" output="screen">
+        <param name="ego" type="bool" value="True" />
+        <param name="namespace" type="string" value="rosbot2" />
+        <param name="threshold" type="double" value="0.10" />
+        <remap from="/cmd_vel" to="cmd_vel"/>
+        <remap from="/odom" to="odom"/>
+        <remap from="/range/fr" to="dumbrange/fr"/>
+        <remap from="/range/fl" to="range/fl"/>
+    </node>
+
+</launch>
